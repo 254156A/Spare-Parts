@@ -3,139 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Spare-Parts Online (Admin History)</title>
+    <title>Spare-Parts Online System (Admin Control)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap');
         body { font-family: 'Sarabun', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .page { display: none; }
+        .active-page { display: block; }
         #hacker-screen { display: none; }
-        input, select, button { min-height: 48px; font-size: 16px !important; }
-        .table-container::-webkit-scrollbar { height: 4px; }
-        .table-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .nav-btn.active { color: #4f46e5; border-top: 4px solid #4f46e5; }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen text-slate-800">
+<body class="bg-slate-50 min-h-screen text-slate-800 pb-20">
 
     <div id="hacker-screen" class="fixed inset-0 bg-white flex flex-col items-center justify-center z-[9999] p-6 text-center">
-        <h1 class="text-6xl md:text-9xl font-black text-red-600 animate-pulse uppercase">ควยไอ่สัส</h1>
-        <p class="mt-6 text-slate-400 font-bold text-lg md:text-2xl uppercase tracking-tighter">System Locked: Unauthorized Access</p>
+        <h1 class="text-6xl font-black text-red-600 animate-pulse uppercase">ควยไอ่สัส</h1>
+        <p class="mt-6 text-slate-400 font-bold uppercase">System Locked</p>
     </div>
 
-    <div id="main-content">
-        <nav class="bg-indigo-700 p-4 text-white shadow-xl sticky top-0 z-50">
-            <div class="container mx-auto flex justify-between items-center">
-                <h1 class="text-xl md:text-2xl font-bold flex items-center">
-                    <i class="fa-solid fa-cloud-bolt mr-2 text-sky-300"></i> SPARE-PARTS
-                </h1>
-                <button onclick="checkAdminPassword()" class="bg-indigo-900/50 hover:bg-black px-4 py-2 rounded-xl text-xs font-bold transition-all border border-indigo-400/30">
-                    <i class="fa-solid fa-lock"></i> ADMIN
-                </button>
+    <div id="page-inventory" class="page active-page animate-fade-in p-4">
+        <header class="mb-6 flex justify-between items-end">
+            <div>
+                <h1 class="text-2xl font-black text-indigo-700 uppercase tracking-tight"><i class="fa-solid fa-warehouse mr-2"></i> สต็อกคงเหลือ</h1>
+                <p class="text-slate-400 text-xs">ข้อมูลอัปเดตแบบ Real-time</p>
             </div>
-        </nav>
+            <div id="admin-status-badge" class="hidden bg-yellow-100 text-yellow-700 text-[10px] font-black px-3 py-1 rounded-full animate-bounce uppercase">Admin Mode</div>
+        </header>
+        <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100">
+            <div class="overflow-x-auto">
+                <table class="w-full text-center min-w-[320px]">
+                    <thead class="bg-slate-50 text-slate-400 text-[10px] font-black uppercase">
+                        <tr>
+                            <th class="p-4 text-left">รายการอะไหล่</th>
+                            <th class="p-4">จำนวน</th>
+                            <th class="p-4">สถานะ</th>
+                            <th id="admin-col-head" class="p-4 hidden">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stockTable" class="divide-y divide-slate-50 text-sm"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
-        <div class="container mx-auto p-4 md:p-8 grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
-            
-            <div class="lg:col-span-4 order-2 lg:order-1">
-                <div class="bg-white p-6 md:p-8 rounded-3xl shadow-xl border-b-8 border-indigo-600">
-                    <h2 class="text-xl font-bold mb-6 text-indigo-700 flex items-center justify-center">
-                        <i class="fa-solid fa-cart-arrow-down mr-2"></i> WITHDRAW FORM
-                    </h2>
-                    <div class="space-y-5 text-left">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Requester Name</label>
-                            <input type="text" id="userName" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-indigo-400 focus:bg-white outline-none transition-all" placeholder="ชื่อผู้เบิก">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Select Spare-Part</label>
-                            <select id="partSelect" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-indigo-400 appearance-none"></select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Quantity</label>
-                            <input type="number" id="withdrawQty" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-indigo-400" placeholder="0" inputmode="numeric">
-                        </div>
-                        <button onclick="handleWithdraw()" class="w-full bg-indigo-600 hover:bg-indigo-800 text-white font-black py-4 rounded-2xl shadow-lg shadow-indigo-200 active:scale-95 transition-all text-lg uppercase">
-                            Confirm
-                        </button>
-                    </div>
+    <div id="page-withdraw" class="page animate-fade-in p-4">
+        <header class="mb-6">
+            <h1 class="text-2xl font-black text-indigo-700 uppercase"><i class="fa-solid fa-cart-flatbed mr-2"></i> เบิกอะไหล่</h1>
+            <p class="text-slate-400 text-xs">ระบุชื่อและจำนวนที่ต้องการเบิก</p>
+        </header>
+        <div class="bg-white p-6 rounded-3xl shadow-xl border-b-8 border-indigo-600 space-y-4">
+            <input type="text" id="userName" class="w-full p-4 bg-slate-50 rounded-2xl outline-none focus:ring-2 ring-indigo-400 transition-all" placeholder="ชื่อพนักงานผู้เบิก">
+            <select id="partSelect" class="w-full p-4 bg-slate-50 rounded-2xl outline-none appearance-none font-bold"></select>
+            <input type="number" id="withdrawQty" class="w-full p-4 bg-slate-50 rounded-2xl outline-none" placeholder="จำนวนที่เบิก" inputmode="numeric">
+            <button onclick="handleWithdraw()" class="w-full bg-indigo-600 text-white font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-all text-lg">ยืนยันการเบิก</button>
+        </div>
+    </div>
+
+    <div id="page-admin" class="page animate-fade-in p-4">
+        <header class="mb-6 flex justify-between items-center">
+            <h1 class="text-2xl font-black text-yellow-600 uppercase"><i class="fa-solid fa-user-gear mr-2"></i> โหมดแอดมิน</h1>
+            <button onclick="lockAdmin()" class="bg-slate-200 p-2 rounded-full px-4 text-[10px] font-bold">ล็อกระบบ</button>
+        </header>
+        <div id="admin-content" class="space-y-6 text-left">
+            <div class="bg-slate-900 text-white p-6 rounded-3xl shadow-xl space-y-4">
+                <h3 class="text-xs font-black text-yellow-400 uppercase tracking-widest border-b border-slate-800 pb-2">จัดการคลังสินค้า</h3>
+                <div class="space-y-2">
+                    <p class="text-[10px] text-slate-500 uppercase font-bold tracking-tighter">เพิ่มอะไหล่ชนิดใหม่</p>
+                    <div class="flex gap-2"><input id="newItemName" class="flex-1 p-3 bg-slate-800 rounded-xl text-sm outline-none border border-slate-700 focus:border-blue-500" placeholder="ชื่ออะไหล่"><input id="newItemQty" type="number" class="w-20 p-3 bg-slate-800 rounded-xl text-sm outline-none border border-slate-700" placeholder="ตัว"><button onclick="addNewPart()" class="bg-blue-600 px-4 rounded-xl font-bold text-xs active:scale-90 transition">เพิ่ม</button></div>
+                </div>
+                <div class="space-y-2">
+                    <p class="text-[10px] text-slate-500 uppercase font-bold tracking-tighter">เติมสต็อกสินค้าเดิม</p>
+                    <div class="flex gap-2"><select id="restockSelect" class="flex-1 p-3 bg-slate-800 rounded-xl text-sm outline-none border border-slate-700 focus:border-yellow-500"></select><input id="restockQty" type="number" class="w-20 p-3 bg-slate-800 rounded-xl text-sm outline-none border border-slate-700" placeholder="ตัว"><button onclick="handleRestock()" class="bg-yellow-500 text-slate-900 px-4 rounded-xl font-bold text-xs active:scale-90 transition">เติม</button></div>
                 </div>
             </div>
-
-            <div class="lg:col-span-8 order-1 lg:order-2 space-y-6">
-                <div class="bg-white p-6 md:p-8 rounded-3xl shadow-xl">
-                    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4 border-b border-slate-100 pb-4">
-                        <h2 class="text-xl font-bold text-slate-800 flex items-center">
-                            <i class="fa-solid fa-box-open mr-2 text-indigo-500"></i> INVENTORY STATUS
-                        </h2>
-                        <span id="update-badge" class="text-[10px] bg-green-100 text-green-600 px-3 py-1 rounded-full font-black animate-pulse uppercase">Live Database</span>
-                    </div>
-                    
-                    <div class="table-container overflow-x-auto rounded-2xl border border-slate-100">
-                        <table class="w-full text-center min-w-[500px]">
-                            <thead class="bg-slate-50 text-slate-400 text-xs font-black uppercase tracking-widest">
-                                <tr>
-                                    <th class="p-5 text-left">Description</th>
-                                    <th class="p-5">In-Stock</th>
-                                    <th class="p-5">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="stockTable" class="text-slate-700 font-medium"></tbody>
-                        </table>
-                    </div>
-                    <p id="emptyMsg" class="mt-8 text-slate-300 italic hidden text-center">No parts available in inventory.</p>
-                </div>
-
-                <div id="adminPanel" class="bg-slate-900 p-6 md:p-8 rounded-3xl shadow-2xl hidden border-t-8 border-yellow-500 transition-all">
-                    <div class="flex justify-between items-center mb-8 border-b border-slate-800 pb-4">
-                        <h2 class="text-xl font-black text-yellow-400 uppercase tracking-widest"><i class="fa-solid fa-screwdriver-wrench mr-2"></i> ADMIN CONTROL</h2>
-                        <button onclick="closeAdmin()" class="text-slate-500 hover:text-white font-black transition">CLOSE [X]</button>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 gap-6 mb-8 text-left">
-                        <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-inner">
-                            <h3 class="text-blue-400 font-black text-xs uppercase mb-4">1. Register New Spare-Part</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                                <input type="text" id="newItemName" class="p-4 bg-slate-900 text-white border border-slate-700 rounded-xl outline-none focus:border-blue-500" placeholder="ชื่ออะไหล่">
-                                <input type="number" id="newItemQty" class="p-4 bg-slate-900 text-white border border-slate-700 rounded-xl outline-none focus:border-blue-500" placeholder="จำนวนเริ่มต้น">
-                                <button onclick="addNewPart()" class="bg-blue-600 hover:bg-blue-500 text-white font-black py-2 rounded-xl active:scale-95 transition-all">ADD PART</button>
-                            </div>
-                        </div>
-
-                        <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-inner">
-                            <h3 class="text-yellow-400 font-black text-xs uppercase mb-4">2. Inventory Restock (เติมของ)</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                                <select id="restockSelect" class="p-4 bg-slate-900 text-white border border-slate-700 rounded-xl outline-none focus:border-yellow-500"></select>
-                                <input type="number" id="restockQty" class="p-4 bg-slate-900 text-white border border-slate-700 rounded-xl outline-none focus:border-yellow-500" placeholder="เติมจำนวน">
-                                <button onclick="handleRestock()" class="bg-yellow-500 hover:bg-yellow-400 text-slate-900 font-black py-2 rounded-xl active:scale-95 transition-all">UPDATE STOCK</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700">
-                        <h3 class="text-white font-black text-xs uppercase mb-4 border-b border-slate-700 pb-2">3. Transaction History (ประวัติล่าสุด)</h3>
-                        <div class="table-container overflow-x-auto max-h-80">
-                            <table class="w-full text-left text-xs text-slate-300 min-w-[500px]">
-                                <thead class="bg-slate-900 text-slate-500 font-black uppercase">
-                                    <tr>
-                                        <th class="p-3">Time</th>
-                                        <th class="p-3">Action</th>
-                                        <th class="p-3">Part Name</th>
-                                        <th class="p-3">Qty</th>
-                                        <th class="p-3">By</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="historyTable"></tbody>
-                            </table>
-                        </div>
-                    </div>
+            <div class="bg-white rounded-3xl shadow-xl p-4 overflow-hidden border border-slate-100">
+                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4"><i class="fa-solid fa-clock-rotate-left mr-1"></i> ประวัติล่าสุด</h3>
+                <div class="overflow-x-auto max-h-[350px]">
+                    <table class="w-full text-left text-[11px]">
+                        <thead class="bg-slate-50 text-slate-500 uppercase">
+                            <tr><th class="p-3">เวลา</th><th class="p-3">งาน</th><th class="p-3">อะไหล่</th><th class="p-3 text-center">ตัว</th><th class="p-3">โดย</th></tr>
+                        </thead>
+                        <tbody id="historyTable" class="divide-y divide-slate-50"></tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
 
+    <nav class="fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 h-16 flex justify-around items-center z-50">
+        <button onclick="switchPage('page-inventory')" id="btn-inventory" class="nav-btn active flex flex-col items-center gap-1 w-full pt-1">
+            <i class="fa-solid fa-list-ul"></i><span class="text-[10px] font-bold uppercase">Stock</span>
+        </button>
+        <button onclick="switchPage('page-withdraw')" id="btn-withdraw" class="nav-btn flex flex-col items-center gap-1 w-full pt-1">
+            <i class="fa-solid fa-hand-holding-box"></i><span class="text-[10px] font-bold uppercase">Withdraw</span>
+        </button>
+        <button onclick="handleAdminTab()" id="btn-admin" class="nav-btn flex flex-col items-center gap-1 w-full pt-1">
+            <i class="fa-solid fa-user-shield"></i><span class="text-[10px] font-bold uppercase">Admin</span>
+        </button>
+    </nav>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, updateDoc, doc, onSnapshot, query, orderBy, limit, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, limit, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAzY8MQhnzRAsS3OaSNFUiKAQfVndRoulA",
@@ -154,58 +124,79 @@
 
         let partsData = [];
         let wrongCount = 0;
+        let isAdminAuthenticated = false;
 
-        // รับข้อมูลอะไหล่ Real-time
+        window.switchPage = (pageId) => {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+            document.getElementById(pageId).classList.add('active-page');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('btn-' + pageId.split('-')[1]).classList.add('active');
+        };
+
+        window.handleAdminTab = () => {
+            if (!isAdminAuthenticated) {
+                const pwd = prompt("รหัสผ่านแอดมิน:");
+                if (pwd === "1234") { 
+                    isAdminAuthenticated = true; 
+                    updateAdminView(true);
+                    switchPage('page-admin'); 
+                }
+                else { if (++wrongCount >= 3) { document.getElementById('main-content').style.display = 'none'; document.getElementById('hacker-screen').style.display = 'flex'; } }
+            } else { switchPage('page-admin'); }
+        };
+
+        window.lockAdmin = () => { 
+            isAdminAuthenticated = false; 
+            updateAdminView(false);
+            switchPage('page-inventory'); 
+        };
+
+        // อัปเดตการมองเห็นปุ่มลบ
+        function updateAdminView(show) {
+            document.getElementById('admin-status-badge').classList.toggle('hidden', !show);
+            document.getElementById('admin-col-head').classList.toggle('hidden', !show);
+            renderUI(); // รีเฟรชตารางเพื่อโชว์/ซ่อนปุ่มลบ
+        }
+
         onSnapshot(partsCol, (snapshot) => {
             partsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             renderUI();
-            const badge = document.getElementById('update-badge');
-            badge.classList.remove('animate-pulse');
-            setTimeout(() => badge.classList.add('animate-pulse'), 100);
         });
 
-        // รับข้อมูลประวัติ Real-time (20 รายการล่าสุด)
-        const qLogs = query(logsCol, orderBy("time", "desc"), limit(20));
+        const qLogs = query(logsCol, orderBy("time", "desc"), limit(30));
         onSnapshot(qLogs, (snapshot) => {
-            const logsTable = document.getElementById('historyTable');
-            logsTable.innerHTML = '';
+            const table = document.getElementById('historyTable');
+            table.innerHTML = '';
             snapshot.docs.forEach(doc => {
                 const log = doc.data();
-                const timeStr = log.time ? log.time.toDate().toLocaleString('th-TH') : '...';
-                const isWithdraw = log.type === 'WITHDRAW';
-                logsTable.innerHTML += `
-                    <tr class="border-b border-slate-700/50">
-                        <td class="p-3 text-slate-500">${timeStr}</td>
-                        <td class="p-3 font-bold ${isWithdraw ? 'text-red-400' : 'text-green-400'}">${log.type}</td>
-                        <td class="p-3">${log.partName}</td>
-                        <td class="p-3 font-black">${isWithdraw ? '-' : '+'}${log.qty}</td>
-                        <td class="p-3 text-slate-400">${log.user}</td>
-                    </tr>
-                `;
+                const timeStr = log.time ? log.time.toDate().toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'}) : '...';
+                table.innerHTML += `<tr class="border-b border-slate-50"><td class="p-3 text-slate-400">${timeStr}</td><td class="p-3 font-bold ${log.type==='WITHDRAW'?'text-red-500':'text-green-500'}">${log.type}</td><td class="p-3 font-semibold">${log.partName}</td><td class="p-3 text-center font-black">${log.qty}</td><td class="p-3 text-slate-500">${log.user}</td></tr>`;
             });
         });
 
-        // ฟังก์ชันบันทึก Log ลง Firebase
-        async function saveLog(type, partName, qty, user) {
-            await addDoc(logsCol, {
-                type, partName, qty, user, time: serverTimestamp()
-            });
-        }
+        // ฟังก์ชันลบอะไหล่ (Admin Only)
+        window.deletePart = async (id, name) => {
+            if (!isAdminAuthenticated) return alert("❌ เฉพาะแอดมินเท่านั้น!");
+            if (confirm(`⚠️ คุณแน่ใจหรือไม่ว่าต้องการลบรายการ "${name}" ออกจากระบบถาวร?`)) {
+                try {
+                    await deleteDoc(doc(db, "parts", id));
+                    await addDoc(logsCol, { type: 'DELETE', partName: name, qty: 0, user: 'Admin', time: serverTimestamp() });
+                    alert("🗑 ลบรายการเรียบร้อยแล้ว");
+                } catch (e) { alert("เกิดข้อผิดพลาดในการลบ!"); }
+            }
+        };
 
         window.handleWithdraw = async () => {
             const user = document.getElementById('userName').value.trim();
             const partId = document.getElementById('partSelect').value;
             const qty = parseInt(document.getElementById('withdrawQty').value);
-            
-            if(!user || !partId || isNaN(qty) || qty <= 0) return alert("❌ ใส่ข้อมูลไม่ครบ");
-            
+            if(!user || !partId || isNaN(qty) || qty <= 0) return alert("❌ กรอกข้อมูลไม่ครบ!");
             const part = partsData.find(p => p.id === partId);
             if(part.stock >= qty) {
                 await updateDoc(doc(db, "parts", partId), { stock: part.stock - qty });
-                await saveLog('WITHDRAW', part.name, qty, user);
-                alert(`✅ เบิก ${part.name} เรียบร้อย!`);
-                document.getElementById('withdrawQty').value = "";
-            } else { alert("❌ ของไม่พอเบิก!"); }
+                await addDoc(logsCol, { type: 'WITHDRAW', partName: part.name, qty, user, time: serverTimestamp() });
+                alert("✅ เบิกสำเร็จ!"); document.getElementById('withdrawQty').value = "";
+            } else { alert("❌ อะไหล่ไม่พอเบิก!"); }
         };
 
         window.addNewPart = async () => {
@@ -213,73 +204,46 @@
             const qty = parseInt(document.getElementById('newItemQty').value);
             if(name && !isNaN(qty)) {
                 await addDoc(partsCol, { name, stock: qty, min: 5 });
-                await saveLog('REGISTER', name, qty, 'Admin');
-                document.getElementById('newItemName').value = "";
-                document.getElementById('newItemQty').value = "";
-                alert("✨ เพิ่มรายการใหม่สำเร็จ");
+                await addDoc(logsCol, { type: 'REGISTER', partName: name, qty, user: 'Admin', time: serverTimestamp() });
+                document.getElementById('newItemName').value = ""; document.getElementById('newItemQty').value = "";
+                alert("✨ เพิ่มของใหม่แล้ว");
             }
         };
 
         window.handleRestock = async () => {
             const partId = document.getElementById('restockSelect').value;
             const qty = parseInt(document.getElementById('restockQty').value);
-            if(!partId || isNaN(qty) || qty <= 0) return;
+            if(!partId || isNaN(qty)) return;
             const part = partsData.find(p => p.id === partId);
             await updateDoc(doc(db, "parts", partId), { stock: part.stock + qty });
-            await saveLog('RESTOCK', part.name, qty, 'Admin');
-            alert(`🛠 เติมสต็อก ${part.name} สำเร็จ`);
-            document.getElementById('restockQty').value = "";
+            await addDoc(logsCol, { type: 'RESTOCK', partName: part.name, qty, user: 'Admin', time: serverTimestamp() });
+            alert("🛠 อัปเดตสต็อกแล้ว"); document.getElementById('restockQty').value = "";
         };
 
         function renderUI() {
-            const tableBody = document.getElementById('stockTable');
+            const table = document.getElementById('stockTable');
             const withdrawSelect = document.getElementById('partSelect');
             const restockSelect = document.getElementById('restockSelect');
-            const emptyMsg = document.getElementById('emptyMsg');
+            table.innerHTML = '';
+            withdrawSelect.innerHTML = '<option value="" disabled selected>-- เลือกอะไหล่ --</option>';
+            restockSelect.innerHTML = '<option value="" disabled selected>-- เลือกอะไหล่ --</option>';
             
-            tableBody.innerHTML = '';
-            withdrawSelect.innerHTML = '<option value="" disabled selected>-- เลือกรายการ --</option>';
-            restockSelect.innerHTML = '<option value="" disabled selected>-- เลือกรายการ --</option>';
-
-            let visibleCount = 0;
-            partsData.forEach((item) => {
-                if(item.stock > 0) {
-                    visibleCount++;
-                    const isLow = item.stock <= 5;
-                    tableBody.innerHTML += `
-                        <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition-all">
-                            <td class="p-5 text-left font-bold text-slate-800 uppercase text-sm">${item.name}</td>
-                            <td class="p-5 font-black"><span class="text-xl ${isLow ? 'text-red-600' : 'text-indigo-600'}">${item.stock}</span> <span class="text-xs text-slate-300 italic">pcs</span></td>
-                            <td class="p-5">
-                                <span class="px-4 py-1.5 rounded-full text-[9px] font-black tracking-widest ${isLow ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-700'} uppercase">
-                                    ${isLow ? 'Low Stock' : 'Ready'}
-                                </span>
-                            </td>
-                        </tr>`;
-                    withdrawSelect.innerHTML += `<option value="${item.id}">${item.name}</option>`;
-                }
-                restockSelect.innerHTML += `<option value="${item.id}">${item.name} (คงเหลือ: ${item.stock})</option>`;
+            partsData.forEach(item => {
+                const isLow = item.stock <= 5;
+                let adminBtn = isAdminAuthenticated ? `<td class="p-4"><button onclick="deletePart('${item.id}', '${item.name}')" class="text-red-400 hover:text-red-600 transition"><i class="fa-solid fa-trash-can"></i></button></td>` : '';
+                
+                table.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="p-4 text-left font-bold text-slate-700">${item.name}</td>
+                        <td class="p-4 font-black text-lg ${isLow?'text-red-500':'text-indigo-600'}">${item.stock}</td>
+                        <td class="p-4"><span class="px-2 py-1 rounded-full text-[8px] font-black uppercase ${isLow?'bg-red-100 text-red-600':'bg-green-100 text-green-700'}">${isLow?'Low':'OK'}</span></td>
+                        ${adminBtn}
+                    </tr>`;
+                
+                withdrawSelect.innerHTML += `<option value="${item.id}">${item.name}</option>`;
+                restockSelect.innerHTML += `<option value="${item.id}">${item.name}</option>`;
             });
-            emptyMsg.classList.toggle('hidden', visibleCount > 0);
         }
-
-        window.checkAdminPassword = () => {
-            const pwd = prompt("ระบุรหัสผ่านแอดมิน:");
-            if (pwd === "1234") {
-                document.getElementById('adminPanel').classList.remove('hidden');
-                document.getElementById('adminPanel').scrollIntoView({ behavior: 'smooth' });
-            } else {
-                if (++wrongCount >= 3) {
-                    document.getElementById('main-content').style.display = 'none';
-                    document.getElementById('hacker-screen').style.display = 'flex';
-                } else { alert(`รหัสผิด! ครั้งที่ ${wrongCount}/3`); }
-            }
-        };
-
-        window.closeAdmin = () => {
-            document.getElementById('adminPanel').classList.add('hidden');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        };
     </script>
 </body>
 </html>
